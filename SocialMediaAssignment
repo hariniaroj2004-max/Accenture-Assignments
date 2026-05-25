@@ -296,6 +296,8 @@ mongosh --port 27017/socialmediadb scripts\insertComments.js
 mongosh --port 27017/socialmediadb scripts\insertFollowers.js
 
 mongosh --port 27017/socialmediadb scripts\insertActivityLogs.js
+//Check data
+mongosh --port 27017/socialmediadb scripts\checkData.js
 //Update data
 mongosh --port 27017/socialmediadb scripts\updateData.js
 //Delete data
