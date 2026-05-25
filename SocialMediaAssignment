@@ -1,0 +1,304 @@
+mkdir mongodb-replication-socialmedia
+cd mongodb-replication-socialmedia
+mkdir data\db1
+mkdir data\db2
+mkdir data\db3
+mkdir scripts
+//Open mongodb_replication-socialmedia from file and by right clicking the script folder add the following files
+//setupReplica.js
+//insertUsers.js
+//insertPosts.js
+//insertComments.js
+//insertFollowers.js
+//insertActivityLogs.js
+//checkData.js
+//updateData.js
+//deleteData.js
+//failoverDemo.js
+//Code for setupReplica.js
+rs.initiate({
+    _id: "rs0",
+    members: [
+        {
+            _id: 0,
+            host: "localhost:27017"
+        },
+        {
+            _id: 1,
+            host: "localhost:27018"
+        },
+        {
+            _id: 2,
+            host: "localhost:27019"
+        }
+    ]
+});
+
+print("Replica Set Initialized");
+//ctrl+s
+//Code for insertUsers.js
+db.users.insertMany([
+    {
+        userId: "U001",
+        username: "harini_sm",
+        email: "harini@email.com",
+        bio: "Love photography and travel",
+        followersCount: 500,
+        followingCount: 300,
+        createdAt: new Date()
+    },
+    {
+        userId: "U002",
+        username: "sara_writes",
+        email: "sara@email.com",
+        bio: "Writer and blogger",
+        followersCount: 800,
+        followingCount: 400,
+        createdAt: new Date()
+    },
+    {
+        userId: "U003",
+        username: "raj_clicks",
+        email: "raj@email.com",
+        bio: "Photographer",
+        followersCount: 1200,
+        followingCount: 600,
+        createdAt: new Date()
+    }
+]);
+
+print("Users Inserted Successfully");
+//ctrl+s
+//Code for insertPosts.js
+db.posts.insertMany([
+    {
+        postId: "P001",
+        userId: "U001",
+        caption: "Beautiful sunset today!",
+        hashtags: [
+            "sunset",
+            "nature",
+            "photography"
+        ],
+        likesCount: 150,
+        createdAt: new Date()
+    },
+    {
+        postId: "P002",
+        userId: "U002",
+        caption: "New blog post is live!",
+        hashtags: [
+            "writing",
+            "blog",
+            "lifestyle"
+        ],
+        likesCount: 200,
+        createdAt: new Date()
+    },
+    {
+        postId: "P003",
+        userId: "U003",
+        caption: "Morning vibes!",
+        hashtags: [
+            "morning",
+            "coffee",
+            "life"
+        ],
+        likesCount: 300,
+        createdAt: new Date()
+    }
+]);
+
+print("Posts Inserted Successfully");
+//ctrl+s
+//Code for insertComments.js
+db.comments.insertMany([
+    {
+        commentId: "C001",
+        postId: "P001",
+        userId: "U002",
+        commentText: "Stunning shot!",
+        commentedAt: new Date()
+    },
+    {
+        commentId: "C002",
+        postId: "P002",
+        userId: "U003",
+        commentText: "Great article, loved it!",
+        commentedAt: new Date()
+    },
+    {
+        commentId: "C003",
+        postId: "P003",
+        userId: "U001",
+        commentText: "Perfect morning!",
+        commentedAt: new Date()
+    }
+]);
+
+print("Comments Inserted Successfully");
+//ctrl+s
+Code for insertFollowers.js
+db.followers.insertMany([
+    {
+        followId: "F001",
+        followerId: "U001",
+        followingId: "U002",
+        followedAt: new Date()
+    },
+    {
+        followId: "F002",
+        followerId: "U002",
+        followingId: "U003",
+        followedAt: new Date()
+    },
+    {
+        followId: "F003",
+        followerId: "U003",
+        followingId: "U001",
+        followedAt: new Date()
+    }
+]);
+
+print("Followers Inserted Successfully");
+//ctrl+s
+//Code for insertActivityLogs.js
+db.activity_logs.insertMany([
+    {
+        activityId: "A001",
+        userId: "U001",
+        activityType: "Login",
+        device: "Mobile",
+        activityTime: new Date()
+    },
+    {
+        activityId: "A002",
+        userId: "U002",
+        activityType: "Post",
+        device: "Laptop",
+        activityTime: new Date()
+    },
+    {
+        activityId: "A003",
+        userId: "U003",
+        activityType: "Like",
+        device: "Mobile",
+        activityTime: new Date()
+    }
+]);
+
+print("Activity Logs Inserted Successfully");
+//ctrl+s
+//code for checkData.js
+print("=== USERS ===");
+db.users.find().forEach(printjson);
+
+print("=== POSTS ===");
+db.posts.find().forEach(printjson);
+
+print("=== COMMENTS ===");
+db.comments.find().forEach(printjson);
+
+print("=== FOLLOWERS ===");
+db.followers.find().forEach(printjson);
+
+print("=== ACTIVITY LOGS ===");
+db.activity_logs.find().forEach(printjson);
+//ctrl+s
+//code for updateData.js
+db.users.updateOne(
+    {
+        userId: "U001"
+    },
+    {
+        $set: {
+            bio: "Travel and food lover"
+        }
+    }
+);
+
+print("Bio Updated");
+
+db.posts.updateOne(
+    {
+        postId: "P002"
+    },
+    {
+        $set: {
+            caption: "Updated: New blog post is live now!"
+        }
+    }
+);
+
+print("Caption Updated");
+
+db.posts.updateOne(
+    {
+        postId: "P003"
+    },
+    {
+        $set: {
+            likesCount: 350
+        }
+    }
+);
+
+print("Likes Count Updated");
+//ctrl+s
+//code for deleteData.js
+db.users.deleteOne({
+    userId: "U003"
+});
+
+print("Inactive User Deleted");
+
+db.comments.deleteOne({
+    commentId: "C003"
+});
+
+print("Unwanted Comment Deleted");
+
+db.posts.deleteOne({
+    postId: "P003"
+});
+
+print("Post Deleted");
+//ctrl+s
+//code for failoverDemo.js
+print("=== Replica Set Status Before Failover ===");
+
+printjson(rs.status());
+
+print("To simulate failover:");
+
+print("1. Stop the primary mongod process");
+
+print("2. Run rs.status() again to see new primary elected");
+
+print("Failover Demo Script Complete");
+//ctrl+s
+//In terminal 1
+taskkill /F /IM mongod.exe
+mongod --replSet rs0 --port 27017 --dbpath .\data\db1
+//in terminal 2
+mongod --replSet rs0 --port 27018 --dbpath .\data\db2
+//in terminal 3
+mongod --replSet rs0 --port 27019 --dbpath .\data\db3
+//in terminal 4 , setup replica
+mongosh --port 27017 scripts\setupReplica.js
+//insert all data
+mongosh --port 27017/socialmediadb scripts\insertUsers.js
+
+mongosh --port 27017/socialmediadb scripts\insertPosts.js
+
+mongosh --port 27017/socialmediadb scripts\insertComments.js
+
+mongosh --port 27017/socialmediadb scripts\insertFollowers.js
+
+mongosh --port 27017/socialmediadb scripts\insertActivityLogs.js
+//Update data
+mongosh --port 27017/socialmediadb scripts\updateData.js
+//Delete data
+mongosh --port 27017/socialmediadb scripts\deleteData.js
+//Failover demo
+mongosh --port 27017 scripts\failoverDemo.js
