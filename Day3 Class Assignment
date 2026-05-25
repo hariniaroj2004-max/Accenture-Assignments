@@ -1,0 +1,245 @@
+//in terminal
+mkdir mongodb-replication-ott
+cd mongodb-replication-ott
+mkdir data\db1
+mkdir data\db2
+mkdir data\db3
+mkdir scripts
+//open mongodb-replication-ott from folder
+// Add the following files to the script folder by right click and clicking add new file
+//setupReplica.js
+//insertUsers.js
+//insertStreamingHistory.js
+//insertRecommendations.js
+//insertActivityLogs.js
+//checkData.js
+//updateData.js
+//deleteData.js
+//failoverDemo.js
+//Code for setupReplica.js
+rs.initiate({
+  _id: "rs0",
+  members: [
+    { _id: 0, host: "localhost:27017" },
+    { _id: 1, host: "localhost:27018" },
+    { _id: 2, host: "localhost:27019" }
+  ]
+});
+
+print("Replica Set Initialized");
+//ctrl+s
+//Code for insertUsers.js
+db.users.insertMany([
+  {
+    userId: "U001",
+    name: "Harini",
+    email: "harini@email.com",
+    subscription: "Premium",
+    country: "India",
+    createdAt: new Date()
+  },
+  {
+    userId: "U002",
+    name: "Sara",
+    email: "sara@email.com",
+    subscription: "Basic",
+    country: "India",
+    createdAt: new Date()
+  },
+  {
+    userId: "U003",
+    name: "Raj",
+    email: "raj@email.com",
+    subscription: "Premium",
+    country: "India",
+    createdAt: new Date()
+  }
+]);
+
+print("Users Inserted Successfully");
+//ctrl+s
+//Code for insertStreamingHistory.js
+db.streaming_history.insertMany([
+  {
+    historyId: "H001",
+    userId: "U001",
+    contentTitle: "Sacred Games",
+    genre: "Thriller",
+    watchDuration: 55,
+    watchedAt: new Date()
+  },
+  {
+    historyId: "H002",
+    userId: "U002",
+    contentTitle: "Mirzapur",
+    genre: "Action",
+    watchDuration: 45,
+    watchedAt: new Date()
+  },
+  {
+    historyId: "H003",
+    userId: "U003",
+    contentTitle: "Panchayat",
+    genre: "Comedy",
+    watchDuration: 30,
+    watchedAt: new Date()
+  }
+]);
+
+print("Streaming History Inserted Successfully");
+//ctrl+s
+//Code for insertRecommendations.js
+db.recommendations.insertMany([
+  {
+    recommendationId: "R001",
+    userId: "U001",
+    recommendedTitle: "Delhi Crime",
+    genre: "Crime",
+    score: 9.2
+  },
+  {
+    recommendationId: "R002",
+    userId: "U002",
+    recommendedTitle: "Scam 1992",
+    genre: "Drama",
+    score: 9.5
+  },
+  {
+    recommendationId: "R003",
+    userId: "U003",
+    recommendedTitle: "TVF Pitchers",
+    genre: "Comedy",
+    score: 8.8
+  }
+]);
+
+print("Recommendations Inserted Successfully");
+//ctrl+s
+//Code for insertActivityLogs.js
+db.activity_logs.insertMany([
+  {
+    logId: "L001",
+    userId: "U001",
+    device: "SmartTV",
+    action: "Play",
+    contentTitle: "Sacred Games",
+    loggedAt: new Date()
+  },
+  {
+    logId: "L002",
+    userId: "U002",
+    device: "Mobile",
+    action: "Pause",
+    contentTitle: "Mirzapur",
+    loggedAt: new Date()
+  },
+  {
+    logId: "L003",
+    userId: "U003",
+    device: "Laptop",
+    action: "Stop",
+    contentTitle: "Panchayat",
+    loggedAt: new Date()
+  }
+]);
+
+print("Activity Logs Inserted Successfully");
+//ctrl+s
+//Code for checkData.js
+print("=== USERS ===");
+db.users.find().forEach(printjson);
+
+print("=== STREAMING HISTORY ===");
+db.streaming_history.find().forEach(printjson);
+
+print("=== RECOMMENDATIONS ===");
+db.recommendations.find().forEach(printjson);
+
+print("=== ACTIVITY LOGS ===");
+db.activity_logs.find().forEach(printjson);
+//ctrl+s
+//Code for UpdateData.js
+db.users.updateOne(
+  { userId: "U002" },
+  { $set: { subscription: "Premium" } }
+);
+
+print("Subscription Updated");
+
+db.streaming_history.updateOne(
+  { historyId: "H001" },
+  { $set: { watchDuration: 90 } }
+);
+
+print("Watch Duration Updated");
+
+db.recommendations.updateOne(
+  { recommendationId: "R003" },
+  { $set: { score: 9.0 } }
+);
+
+print("Recommendation Score Updated");
+//ctrl+s
+//Code for deleteData.js
+db.users.deleteOne({
+  userId: "U003"
+});
+
+print("Inactive User Deleted");
+
+db.activity_logs.deleteOne({
+  logId: "L003"
+});
+
+print("Old Activity Log Deleted");
+
+db.streaming_history.deleteOne({
+  historyId: "H003"
+});
+
+print("Watch History Deleted");
+//Code for failoverDemo.js
+db.users.deleteOne({
+  userId: "U003"
+});
+
+print("Inactive User Deleted");
+
+db.activity_logs.deleteOne({
+  logId: "L003"
+});
+
+print("Old Activity Log Deleted");
+
+db.streaming_history.deleteOne({
+  historyId: "H003"
+});
+
+print("Watch History Deleted");
+//ctrl+s
+//In Terminal
+taskkill /F /IM mongod.exe
+//in terminal 1
+mongod --replSet rs0 --port 27017 --dbpath .\data\db1
+//in terminal 2
+mongod --replSet rs0 --port 27018 --dbpath .\data\db2
+//in terminal 3
+mongod --replSet rs0 --port 27019 --dbpath .\data\db3
+//in terminal 4, to setup replica
+mongosh --port 27017 scripts\setupReplica.js
+//insert data
+mongosh --port 27017/ottdb scripts\insertUsers.js
+
+mongosh --port 27017/ottdb scripts\insertStreamingHistory.js
+
+mongosh --port 27017/ottdb scripts\insertRecommendations.js
+
+mongosh --port 27017/ottdb scripts\insertActivityLogs.js
+//check data
+mongosh --port 27017/ottdb scripts\checkData.js
+//Update data
+mongosh --port 27017/ottdb scripts\updateData.js
+//Delete data
+mongosh --port 27017/ottdb scripts\deleteData.js
+//failover demo
+mongosh --port 27017 scripts\failoverDemo.js
